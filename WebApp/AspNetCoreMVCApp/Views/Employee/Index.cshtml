@@ -1,0 +1,315 @@
+﻿@using AspNetCoreMVCApp.Models;
+@model Employee
+@{
+    ViewData["Title"] = "Employee";
+    var employees = ViewBag.Employees;
+    var officeData = ViewBag.OfficeData;
+    var employeeData = ViewBag.EmployeeData;
+    var employeeJobs = ViewBag.EmployeeJobData;
+    int PageNumber = ViewBag.PageNumber;
+    bool isAdmin = User.Identities.First().Claims.Any(claim => claim.Value == "Information Technology");
+}
+
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Add Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="myForm" method="post">
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="EmployeeName">Employee Name:</label>
+                        <input type="text" class="form-control" id="EmployeeName" asp-for="EmployeeName">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="EmployeePhoneNumber">Employee Phone Number:</label>
+                        <input type="text" class="form-control" id="EmployeePhoneNumber" asp-for="EmployeePhoneNumber">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="EmployeeEmail">Employee Email:</label>
+                        <input type="email" class="form-control" id="EmployeeEmail" asp-for="EmployeeEmail">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="EmployeePassword">Employee Password:</label>
+                        <input type="text" class="form-control" id="EmployeePassword" asp-for="EmployeePassword">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="EmployeeOffice">Employee Office:</label>
+                        <select class="form-select" id="EmployeeOffice" asp-for="EmployeeOfficeGuid">
+                            @foreach (var data in officeData)
+                            {
+                                <option value="@data.OfficeGuid">@data.OfficeCity</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="EmployeeJob">Employee Job Title:</label>
+                        <select class="form-select" id="EmployeeJob" asp-for="EmployeeJobGuid">
+                            @foreach (var data in employeeJobs)
+                            {
+                                <option value="@data._EmployeeJobGuid">@data._EmployeeJobTitle</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="EmployeeManager">Employee Manager:</label>
+                        <select class="form-select" id="EmployeeManager" asp-for="EmployeeManagerGuid">
+                            @foreach (var data in employeeData)
+                            {
+                                <option value="@data.EmployeeGuid">@data.EmployeeName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="EmployeeStartDate">Employee Start Date:</label>
+                        <input type="date" class="form-control" id="EmployeeStartDate" asp-for="EmployeeStartDate">
+                    </div>
+
+                    <input type="hidden" class="form-control" id="EmployeeGuid" asp-for="EmployeeGuid">
+                    <input type="hidden" class="form-control" id="IsActive" asp-for="IsActive">
+
+                    <div style="display: flex; justify-content: space-around;">
+                        <button type="button" class="btn btn-secondary mt-3 w-25" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" id="createButton" class="btn btn-success mt-3 w-25" asp-action="Create" asp-controller="Employee">Submit</button>
+                        <button type="submit" id="editButton" class="btn btn-warning mt-3 w-25" asp-action="Edit" asp-controller="Employee">Submit</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Delete Employee?</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+
+                    Are you sure about that you want to delete <strong id="boldEmployeeName"></strong>?
+                    
+                    <input type="hidden" class="form-control" id="EmployeeGuidDelete" asp-for="EmployeeGuid" />
+                    <input type="hidden" class="form-control" id="EmployeeNameDelete" asp-for="EmployeeName" />
+                    <input type="hidden" class="form-control" id="EmployeePasswordDelete" asp-for="EmployeePassword" />
+                    <input type="hidden" class="form-control" id="EmployeePhoneNumberDelete" asp-for="EmployeePhoneNumber" />
+                    <input type="hidden" class="form-control" id="EmployeeEmailDelete" asp-for="EmployeeEmail" />
+                    <input type="hidden" class="form-control" id="EmployeeJobGuidDelete" asp-for="EmployeeJobGuid" />
+                    <input type="hidden" class="form-control" id="EmployeeManagerGuidDelete" asp-for="EmployeeManagerGuid" />
+                    <input type="hidden" class="form-control" id="EmployeeOfficeGuidDelete" asp-for="EmployeeOfficeGuid" />
+                    <input type="hidden" class="form-control" id="EmployeeStartDateDelete" asp-for="EmployeeStartDate" />
+                    
+
+                    <div class="d-flex align-middle justify-content-around mt-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger" asp-action="Delete" asp-controller="Employee">Delete</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="field_wrapper">
+
+    <div class="field_wrapper_header">
+        <h1>Employee Page</h1>
+        @if(isAdmin == true)
+        {
+            <button type="button" class="btn btn-success" id="addButton" data-bs-toggle="modal" data-bs-target="#myModal">
+                <i class="bi bi-plus-circle"></i> &nbsp; Add Employee
+            </button>   
+        }
+
+    </div>
+
+    <table class="table table-hover table-bordered text-center  align-middle  data-table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Job Title</th>
+                <th scope="col">Phone Number</th>
+                <th scope="col">Office</th>
+                <th scope="col">Manager</th>
+                <th scope="col">Emp. Start Date</th>
+                @if(isAdmin == true)
+                {
+                    <th scope="col">Edit / Delete</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < employees.Count; i++)
+            {
+                <tr>
+                    <th scope="row">@((i + 1) + (PageNumber - 1) * 10)</th>
+                    <td>@employees[i]._EmployeeName</td>
+                    <td>@employees[i]._EmployeeEmail</td>
+                    <td>@employees[i]._EmployeeJobTitle</td>
+                    <td>@employees[i]._EmployeePhoneNumber</td>
+                    <td>@employees[i]._EmployeeOffice</td>
+                    <td>@employees[i]._EmployeeManager</td>
+                    <td>@employees[i]._EmployeeStartDate.ToString("dd MMMM yyyy")</td>
+                    @if(isAdmin == true)
+                    {
+                        <td>
+                            <button type="button" class="btn btn-warning editButton" data-bs-toggle="modal" data-bs-target="#myModal"
+                                    data-empguid="@employees[i]._EmployeeGuid">
+
+                                <i class="bi bi-pencil-square"></i>
+
+                            </button>
+                            <button type="button" class="btn btn-danger deleteButton" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                    data-empguid="@employees[i]._EmployeeGuid"
+                                    data-empname="@employees[i]._EmployeeName"
+                                    data-empemail="@employees[i]._EmployeeEmail"
+                                    data-empjobguid="@employees[i]._EmployeeJobGuid"
+                                    data-empphonenumber="@employees[i]._EmployeePhoneNumber"
+                                    data-empmanagerguid="@employees[i]._EmployeeManagerGuid"
+                                    data-empofficeguid="@employees[i]._EmployeeOfficeGuid"
+                                    data-empstartdate="@employees[i]._EmployeeStartDate"
+                                    data-emppassword="@employees[i]._EmployeePassword">
+
+                                <i class="bi bi-trash3-fill"></i>
+
+                            </button>
+
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    @{
+
+        var isTherePrevPage = !ViewBag.prevPage ? "disabled" : "";
+        var isThereNextPage = !ViewBag.nextPage ? "disabled" : "";
+
+    }
+    
+    <div class="tableArrows">
+        <a class="btn btn-primary @isTherePrevPage"
+           asp-action="Index"
+           asp-route-pageNumber="@(ViewBag.PageNumber - 1)">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+
+        <a class="btn btn-primary @isThereNextPage"
+           asp-action="Index"
+           asp-route-pageNumber="@(ViewBag.PageNumber + 1)">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () { 
+
+        $('#myModal').on('shown.bs.modal', function () {
+            
+            $('#EmployeeName').focus();
+
+        })
+
+        $("#addButton").click(function () {
+
+            $("#myForm")[0].reset();
+
+            $("#myModal .modal-title").text("Add Employee Record")
+
+            $("#createButton").show()
+            $("#editButton").hide()
+
+        })
+
+        $(".deleteButton").click(function () {
+            
+            var empguid = $(this).data('empguid')
+            var empname = $(this).data('empname')
+            var empemail = $(this).data('empemail')
+            var empjobguid = $(this).data('empjobguid')
+            var empphonenumber = $(this).data('empphonenumber')
+            var empmanagerguid = $(this).data('empmanagerguid')
+            var empofficeguid = $(this).data('empofficeguid')
+            var empstartdate = $(this).data('empstartdate')
+            var emppassword = $(this).data('emppassword')
+
+            $("#boldEmployeeName").text(empname)
+            
+            $("#EmployeeGuidDelete").val(empguid)
+            $("#EmployeeNameDelete").val(empname)
+            $("#EmployeeJobGuidDelete").val(empjobguid)
+            $("#EmployeePhoneNumberDelete").val(empphonenumber)
+            $("#EmployeeEmailDelete").val(empemail)
+            $("#EmployeeManagerGuidDelete").val(empmanagerguid)
+            $("#EmployeeOfficeGuidDelete").val(empofficeguid)
+            $("#EmployeeStartDateDelete").val(empstartdate)
+            $("#EmployeePasswordDelete").val(emppassword)
+
+        })
+        
+        $(".editButton").click(function () {
+
+            $("#myModal .modal-title").text("Edit Employee Record")
+
+            $("#createButton").hide()
+            $("#editButton").show()
+
+            var empguid = $(this).data('empguid')
+
+            $.ajax({
+
+                type: 'POST',
+                url: '/Employee/GetEmployeeByGuid/',
+                data:
+                {
+                    guid: empguid
+                },
+                success: function (data) {
+
+                    if(data == "Null") {
+                        return;
+                    }
+
+                    var date = data._EmployeeStartDate.split('T')[0].toString();
+
+                    $("#EmployeeGuid").val(data._EmployeeGuid)
+                    $("#EmployeeName").val(data._EmployeeName);
+                    $("#EmployeePhoneNumber").val(data._EmployeePhoneNumber);
+                    $("#EmployeeEmail").val(data._EmployeeEmail);
+                    $("#EmployeePassword").val(data._EmployeePassword);
+                    $('#EmployeeJob option[value="' + data._EmployeeJobGuid + '"]').prop('selected', true);
+                    $('#EmployeeOffice option[value="' + data._EmployeeOfficeGuid + '"]').prop('selected', true);
+                    $('#EmployeeManager option[value="' + data._EmployeeManagerGuid + '"]').prop('selected', true);
+                    $("#EmployeeStartDate").val(date);
+                    $("#IsActive").val(data._IsActive);
+
+                },
+                error: function() {
+                    return;
+                }
+
+            })
+        
+        })
+
+     })
+
+</script>

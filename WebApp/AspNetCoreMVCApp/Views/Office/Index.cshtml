@@ -1,0 +1,255 @@
+﻿@using AspNetCoreMVCApp.Models;
+@model Office
+@{
+    ViewData["Title"] = "Office";
+    var offices = ViewBag.Offices;
+    int PageNumber = ViewBag.PageNumber;
+    bool isAdmin = User.Identities.First().Claims.Any(claim => claim.Value == "Information Technology");
+}
+
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Add Office</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="myForm" method="post">
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="OfficeCity">Office City:</label>
+                        <input type="text" class="form-control" id="OfficeCity" asp-for="OfficeCity">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="OfficePhoneNumber">Office Phone Number:</label>
+                        <input type="text" class="form-control" id="OfficePhoneNumber" asp-for="OfficePhoneNumber">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="OfficeAddress">Office Address:</label>
+                        <input type="text" class="form-control" id="OfficeAddress" asp-for="OfficeAddress">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="OfficePostalCode">Office Postal Code:</label>
+                        <input type="text" class="form-control" id="OfficePostalCode" asp-for="OfficePostalCode">
+                    </div>
+
+                    <input type="hidden" class="form-control" id="OfficeGuid" asp-for="OfficeGuid">
+                    <input type="hidden" class="form-control" id="IsActive" asp-for="IsActive">
+
+                    <div style="display: flex; justify-content: space-around;">
+                        <button type="button" class="btn btn-secondary mt-3 w-25" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" id="createButton" class="btn btn-success mt-3 w-25" asp-action="Create" asp-controller="Office">Submit</button>
+                        <button type="submit" id="editButton" class="btn btn-warning mt-3 w-25" asp-action="Edit" asp-controller="Office">Submit</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Delete Office?</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+
+                    Are you sure about that you want to delete <strong id="boldOfficeCity"></strong>?
+
+                    <input type="hidden" class="form-control" id="OfficeGuidDelete" asp-for="OfficeGuid" />
+                    <input type="hidden" class="form-control" id="OfficeCityDelete" asp-for="OfficeCity" />
+                    <input type="hidden" class="form-control" id="OfficePhoneNumberDelete" asp-for="OfficePhoneNumber" />
+                    <input type="hidden" class="form-control" id="OfficeAddressDelete" asp-for="OfficeAddress" />
+                    <input type="hidden" class="form-control" id="OfficePostalCodeDelete" asp-for="OfficePostalCode" />
+                    <input type="hidden" class="form-control" id="OfficeIsActiveDelete" asp-for="IsActive" />
+
+                    <div class="d-flex align-middle justify-content-around mt-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger" asp-action="Delete" asp-controller="Office">Delete</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="field_wrapper">
+    <div class="field_wrapper_header">
+
+            <h1>Office Page</h1>
+            @if (isAdmin == true)
+            {
+                <button type="button" class="btn btn-success" id="addButton" data-bs-toggle="modal" data-bs-target="#myModal">
+                    <i class="bi bi-plus-circle"></i> &nbsp; Add Office
+                </button>
+            }
+
+    </div>
+
+    <table class="table table-hover table-bordered text-center align-middle data-table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Office City</th>
+                <th scope="col">Office Phone Number</th>
+                <th scope="col">Office Address</th>
+                <th scope="col">Office Postal Code</th>
+                @if(isAdmin == true)
+                {
+                    <th scope="col">Edit / Delete</th>
+                }
+                
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < offices.Count; i++)
+            {
+                <tr>
+                    <th scope="row">@((i + 1) + (PageNumber - 1) * 10)</th>
+                    <td>@offices[i]._OfficeCity</td>
+                    <td>@offices[i]._OfficePhoneNumber</td>
+                    <td>@offices[i]._OfficeAddress</td>
+                    <td>@offices[i]._OfficePostalCode</td>
+                    @if(isAdmin == true)
+                    {
+                        <td>
+                            <button type="button" class="btn btn-warning editButton" data-bs-toggle="modal" data-bs-target="#myModal"
+                                    data-officeguid="@offices[i]._OfficeGuid">
+
+                                <i class="bi bi-pencil-square"></i>
+
+                            </button>
+                            <button type="button" class="btn btn-danger deleteButton" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                    data-officeguid="@offices[i]._OfficeGuid"
+                                    data-officecity="@offices[i]._OfficeCity"
+                                    data-officephonenumber="@offices[i]._OfficePhoneNumber"
+                                    data-officeaddress="@offices[i]._OfficeAddress"
+                                    data-officepostalcode="@offices[i]._OfficePostalCode"
+                                    data-officeisactive="@offices[i]._IsActive">
+                                <i class="bi bi-trash3-fill"></i>
+
+                            </button>
+
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div>
+        @{
+
+            var isTherePrevPage = !ViewBag.prevPage ? "disabled" : "";
+            var isThereNextPage = !ViewBag.nextPage ? "disabled" : "";
+
+        }
+
+        <a class="btn btn-primary @isTherePrevPage"
+           asp-action="Index"
+           asp-route-pageNumber="@(ViewBag.PageNumber - 1)">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+
+        <a class="btn btn-primary @isThereNextPage"
+           asp-action="Index"
+           asp-route-pageNumber="@(ViewBag.PageNumber + 1)">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myModal').on('shown.bs.modal', function () {
+
+            $('#OfficeCity').focus();
+
+        })
+
+        $("#addButton").click(function () {
+
+            $("#myForm")[0].reset();
+
+            $("#myModal .modal-title").text("Add Office Record")
+
+            $("#createButton").show()
+            $("#editButton").hide()
+
+        })
+
+        $(".deleteButton").click(function () {
+
+            var officeguid = $(this).data('officeguid')
+            var officecity = $(this).data('officecity')
+            var officephonenumber = $(this).data('officephonenumber')
+            var officeaddress = $(this).data('officeaddress')
+            var officepostalcode = $(this).data('officepostalcode')
+            var officeisactive = $(this).data('officeisactive')
+
+            $("#boldOfficeCity").text(officecity)
+
+            $("#OfficeGuidDelete").val(officeguid)
+            $("#OfficeCityDelete").val(officecity)
+            $("#OfficePhoneNumberDelete").val(officephonenumber)
+            $("#OfficeAddressDelete").val(officeaddress)
+            $("#OfficePostalCodeDelete").val(officepostalcode)
+            $("#OfficeIsActiveDelete").val(officeisactive)
+
+        })
+
+        $(".editButton").click(function () {
+
+            $("#myModal .modal-title").text("Edit Office Record")
+
+            $("#createButton").hide()
+            $("#editButton").show()
+
+            var officeguid = $(this).data('officeguid')
+
+            console.log(officeguid)
+            
+            $.ajax({
+
+                type: 'POST',
+                url: '/Office/GetOfficeByGuid/',
+                data:
+                {
+                    guid: officeguid
+                },
+                success: function (data) {
+
+                    if (data == "Null") {
+                        return;
+                    }
+                    
+                    $("#OfficeCity").val(data._OfficeCity)
+                    $("#OfficePhoneNumber").val(data._OfficePhoneNumber);
+                    $("#OfficeAddress").val(data._OfficeAddress);
+                    $("#OfficePostalCode").val(data._OfficePostalCode);
+                    $("#OfficeGuid").val(data._OfficeGuid);
+                    $("#IsActive").val(data._IsActive);
+
+                },
+                error: function () {
+                    return;
+                }
+
+            })
+
+        })
+
+    })
+
+</script>

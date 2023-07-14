@@ -1,0 +1,271 @@
+﻿@using AspNetCoreMVCApp.Models;
+@model Order
+@{
+    ViewData["Title"] = "Order";
+    var orders = ViewBag.Orders;
+    var customers = ViewBag.CustomerData;
+    int PageNumber = ViewBag.PageNumber;
+}
+
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Add Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body"> 
+                <form id="myForm" method="post">
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="OrderDate">Order Date:</label>
+                        <input type="date" class="form-control" id="OrderDate" asp-for="OrderDate">
+                    </div>
+
+                    <div class="form-check mt-2">
+                        <input class="form-check-input form-group mt-2" type="checkbox" id="OrderIsShipped" asp-for="OrderIsShipped">
+                        <label class="form-check-label ml-1 mt-1" for="OrderIsShipped">
+                            Is It Shipped?
+                        </label>
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="OrderComments">Comment for Order:</label>
+                        <textarea class="form-control" id="OrderComments" asp-for="OrderComments"></textarea>
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="OrderCustomer">Ordered By:</label>
+                        <select class="form-select" id="OrderCustomer" asp-for="OrderCustomerGuid">
+                            @foreach (var data in customers)
+                            {
+                                <option value="@data.CustomerGuid">@data.CustomerName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <input type="hidden" class="form-control" id="OrderGuid" asp-for="OrderGuid">
+                    <input type="hidden" class="form-control" id="IsActive" asp-for="IsActive">
+
+                    <div style="display: flex; justify-content: space-around;">
+                        <button type="button" class="btn btn-secondary mt-3 w-25" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" id="createButton" class="btn btn-success mt-3 w-25" asp-action="Create" asp-controller="Order">Submit</button>
+                        <button type="submit" id="editButton" class="btn btn-warning mt-3 w-25" asp-action="Edit" asp-controller="Order">Submit</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Delete Order?</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+
+                    Are you sure about that you want to delete this order?
+
+                    <input type="hidden" class="form-control" id="OrderGuidDelete" asp-for="OrderGuid" />
+                    <input type="hidden" class="form-control" id="OrderDateDelete" asp-for="OrderDate" />
+                    <input type="hidden" class="form-control" id="OrderIsShippedDelete" asp-for="OrderIsShipped" />
+                    <input type="hidden" class="form-control" id="OrderCommentsDelete" asp-for="OrderComments" />
+                    <input type="hidden" class="form-control" id="OrderCustomerGuidDelete" asp-for="OrderCustomerGuid" />
+                    <input type="hidden" class="form-control" id="IsActiveDelete" asp-for="IsActive" />
+
+                    <div class="d-flex align-middle justify-content-around mt-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger" asp-action="Delete" asp-controller="Order">Delete</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="field_wrapper">
+
+    <div class="field_wrapper_header">
+
+        <h1>Order Page</h1>
+
+        <button type="button" class="btn btn-success" id="addButton" data-bs-toggle="modal" data-bs-target="#myModal">
+            <i class="bi bi-plus-circle"></i> &nbsp; Add Order
+        </button>
+
+    </div>
+
+    <table class="table table-hover table-bordered text-center align-middle data-table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Order Date</th>
+                <th scope="col">Is Order Shipped?</th>
+                <th scope="col">Order Comments</th>
+                <th scope="col">Customer Name</th>
+                <th scope="col">Edit / Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < orders.Count; i++)
+            {
+                <tr data-rowid="@i">
+                    <th scope="row">@((i + 1) + (PageNumber - 1) * 10)</th>
+                    <td>@orders[i]._OrderDate.ToString("dd MMMM yyyy")</td>
+
+                    @if (orders[i]._IsOrderShipped)
+                    {
+                        <td style="color:green"><i class="bi bi-check-lg"></i></td>
+                    }
+                    else
+                    {
+                        <td style="color:red"><i class="bi bi-x-lg"></i></td>
+                    }
+
+                    <td>@orders[i]._OrderComments</td>
+                    <td>@orders[i]._CustomerName</td>
+                    <td>
+
+                        <button type="button" class="btn btn-warning editButton" data-bs-toggle="modal" data-bs-target="#myModal"
+                                data-orderguid="@orders[i]._OrderGuid">
+
+                            <i class="bi bi-pencil-square"></i>
+
+                        </button>
+
+                        <button type="button" class="btn btn-danger deleteButton" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                data-orderguid="@orders[i]._OrderGuid"
+                                data-orderdate="@orders[i]._OrderDate"
+                                data-isordershipped="@orders[i]._IsOrderShipped"
+                                data-ordercomments="@orders[i]._OrderComments"
+                                data-ordercustomerguid="@orders[i]._OrderCustomerGuid"
+                                data-isactive="@orders[i]._IsActive">
+
+
+                            <i class="bi bi-trash3-fill"></i>
+
+                        </button>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div>
+        @{
+
+            var isTherePrevPage = !ViewBag.prevPage ? "disabled" : "";
+            var isThereNextPage = !ViewBag.nextPage ? "disabled" : "";
+
+        }
+
+        <a class="btn btn-primary @isTherePrevPage"
+           asp-action="Index"
+           asp-route-pageNumber="@(ViewBag.PageNumber - 1)">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+
+        <a class="btn btn-primary @isThereNextPage"
+           asp-action="Index"
+           asp-route-pageNumber="@(ViewBag.PageNumber + 1)">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myModal').on('shown.bs.modal', function () {
+
+            $('#OrderDate').focus();
+
+        })
+
+        $("#addButton").click(function () {
+
+            $("#myForm")[0].reset();
+
+            $("#myModal .modal-title").text("Add Order Record")
+
+            $("#createButton").show()
+            $("#editButton").hide()
+
+        })
+
+        $(".deleteButton").click(function () {
+
+            var orderGuid = $(this).data('orderguid')
+            var orderDate = $(this).data('orderdate')
+            var orderShipped = $(this).data('isordershipped')
+            var orderComments = $(this).data('ordercomments')
+            var orderCustomerGuid = $(this).data('ordercustomerguid')
+            var orderIsActive = $(this).data('isactive')
+
+            $("#OrderGuidDelete").val(orderGuid)
+            $("#OrderDateDelete").val(orderDate)
+            $("#OrderIsShippedDelete").val(orderShipped)
+            $("#OrderCommentsDelete").val(orderComments)
+            $("#OrderCustomerGuidDelete").val(orderCustomerGuid)
+            $("#IsActiveDelete").val(orderIsActive)
+
+        })
+
+        $(".editButton").click(function () {
+
+            $("#myModal .modal-title").text("Edit Order Record")
+
+            $("#createButton").hide()
+            $("#editButton").show()
+
+            var orderguid = $(this).data('orderguid')
+
+            $.ajax({
+
+                type: 'POST',
+                url: '/Order/GetOrderByGuid/',
+                data:
+                {
+                    guid: orderguid
+                },
+                success: function (data) {
+
+                    if (data == "Null") {
+                        return
+                    }
+
+                    var date = data._OrderDate.split('T')[0].toString()
+                    console.log(data)
+                    $("#OrderDate").val(date)
+                    $("#OrderGuid").val(data._OrderGuid)
+                    $("#OrderComments").val(data._OrderComments)
+                    $('#OrderCustomer option[value="' + data._OrderCustomerGuid + '"]').prop('selected', true)
+                    
+                    if (data._IsOrderShipped)
+                        $("#OrderIsShipped").prop('checked', true) 
+                    else
+                        $("#OrderIsShipped").prop('checked', false) 
+
+                    $("#OrderIsShipped").val()
+                    $("#IsActive").val(data._IsActive)
+
+                },
+                error: function () {
+                    return
+                }
+
+            })
+
+        })
+
+    })
+
+</script>

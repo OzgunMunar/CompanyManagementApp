@@ -1,0 +1,265 @@
+﻿@using AspNetCoreMVCApp.Models;
+@model Customer
+@{
+    ViewData["Title"] = "Customer";
+    var customers = ViewBag.Customers;
+    var employeeData = ViewBag.EmployeeData;
+    int PageNumber = ViewBag.PageNumber;
+
+}
+
+
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Add Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="myForm" method="post">
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="CustomerName">Customer Name:</label>
+                        <input type="text" class="form-control" id="CustomerName" asp-for="CustomerName">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="CustomerPhoneNumber">Customer Phone Number:</label>
+                        <input type="text" class="form-control" id="CustomerPhoneNumber" asp-for="CustomerPhoneNumber">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="CustomerAddress">Customer Address:</label>
+                        <input type="text" class="form-control" id="CustomerAddress" asp-for="CustomerAddress">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="CustomerPostalCode">Customer Postal Code:</label>
+                        <input type="text" class="form-control" id="CustomerPostalCode" asp-for="CustomerPostalCode">
+                    </div>
+
+                    <div class="form-group mt-2  input-group-sm">
+                        <label for="CustomerBoughtFromEmployee">First Purchase From:</label>
+                        <select class="form-select" id="CustomerBoughtFromEmployee" asp-for="CustomerBoughtFromEmployeeGuid">
+                            @foreach (var data in employeeData)
+                            {
+                                <option value="@data.EmployeeGuid">@data.EmployeeName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <input type="hidden" class="form-control" id="CustomerGuid" asp-for="CustomerGuid">
+                    <input type="hidden" class="form-control" id="IsActive" asp-for="IsActive">
+
+                    <div style="display: flex; justify-content: space-around;">
+                        <button type="button" class="btn btn-secondary mt-3 w-25" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" id="createButton" class="btn btn-success mt-3 w-25" asp-action="Create" asp-controller="Customer">Submit</button>
+                        <button type="submit" id="editButton" class="btn btn-warning mt-3 w-25" asp-action="Edit" asp-controller="Customer">Submit</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Delete Employee?</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+
+                    Are you sure about that you want to delete <strong id="boldCustomerName"></strong>?
+
+                    <input type="hidden" class="form-control" id="CustomerGuidDelete" asp-for="CustomerGuid" />
+                    <input type="hidden" class="form-control" id="CustomerNameDelete" asp-for="CustomerName" />
+                    <input type="hidden" class="form-control" id="CustomerPhoneNumberDelete" asp-for="CustomerPhoneNumber" />
+                    <input type="hidden" class="form-control" id="CustomerAddressDelete" asp-for="CustomerAddress" />
+                    <input type="hidden" class="form-control" id="CustomerPostalCodeDelete" asp-for="CustomerPostalCode" />
+                    <input type="hidden" class="form-control" id="CustomerBoughtFromEmployeeGuidDelete" asp-for="CustomerBoughtFromEmployeeGuid" />
+                    <input type="hidden" class="form-control" id="IsActiveDelete" asp-for="IsActive" />
+
+                    <div class="d-flex align-middle justify-content-around mt-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger" asp-action="Delete" asp-controller="Customer">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="field_wrapper">
+
+    <div class="field_wrapper_header">
+        
+        <h1>Customer Page</h1>
+        
+        <button type="button" class="btn btn-success" id="addButton" data-bs-toggle="modal" data-bs-target="#myModal">
+            <i class="bi bi-plus-circle"></i> &nbsp; Add Customer
+        </button>
+
+     </div>
+    
+    
+    <table class="table table-hover table-bordered text-center align-middle data-table ">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Customer Name</th>
+            <th scope="col">Customer Phone Number</th>
+            <th scope="col">Customer Address</th>
+            <th scope="col">Postal Code</th>
+            <th scope="col">First Purchase From</th>
+            <th scope="col">Edit / Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < customers.Count; i++)
+        {
+            <tr>
+                <th scope="row">@((i + 1) + (PageNumber - 1) * 10)</th>
+                <td>@customers[i]._CustomerName</td>
+                <td>@customers[i]._CustomerPhoneNumber</td>
+                <td>@customers[i]._CustomerAddress</td>
+                <td>@customers[i]._CustomerPostalCode</td>
+                <td>@customers[i]._CustomerBoughtFromEmployeeName</td>
+                <td>
+                    <button type="button" class="btn btn-warning editButton" data-bs-toggle="modal" data-bs-target="#myModal"
+                            data-custguid="@customers[i]._CustomerGuid">
+
+                        <i class="bi bi-pencil-square"></i>
+
+                    </button>
+                    <button type="button" class="btn btn-danger deleteButton" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                            data-custguid="@customers[i]._CustomerGuid" 
+                            data-custname="@customers[i]._CustomerName"
+                            data-custphonenumber="@customers[i]._CustomerPhoneNumber"
+                            data-custaddress="@customers[i]._CustomerAddress"
+                            data-custpostalcode="@customers[i]._CustomerPostalCode"
+                            data-custemployeeguid="@customers[i]._CustomerBoughtFromEmployeeGuid"
+                            data-custisactive="@customers[i]._IsActive">
+
+                        <i class="bi bi-trash3-fill"></i>
+
+                    </button>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+    
+    @{
+    
+        var isTherePrevPage = !ViewBag.prevPage ? "disabled" : "";
+        var isThereNextPage = !ViewBag.nextPage ? "disabled" : "";
+    
+    }
+
+    <div>
+        <a class="btn btn-primary @isTherePrevPage"
+           asp-action="Index"
+           asp-route-pageNumber="@(ViewBag.PageNumber - 1)">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+
+        <a class="btn btn-primary @isThereNextPage"
+           asp-action="Index"
+           asp-route-pageNumber="@(ViewBag.PageNumber + 1)">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+    
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myModal').on('shown.bs.modal', function () {
+
+            $('#CustomerName').focus();
+
+        })
+
+        $("#addButton").click(function () {
+
+            $("#myForm")[0].reset();
+
+            $("#myModal .modal-title").text("Add Customer Record")
+
+            $("#createButton").show()
+            $("#editButton").hide()
+
+        })
+
+        $(".deleteButton").click(function () {
+
+            var custguid = $(this).data('custguid')
+            var custname = $(this).data('custname')
+            var custphonenumber = $(this).data('custphonenumber')
+            var custaddress = $(this).data('custaddress')
+            var custpostalcode = $(this).data('custpostalcode')
+            var custemployeeguid = $(this).data('custemployeeguid')
+            var custisactive = $(this).data('custisactive')
+
+            $("#boldCustomerName").text(custname)
+
+            $("#CustomerGuidDelete").val(custguid)
+            $("#CustomerNameDelete").val(custname)
+            $("#CustomerPhoneNumberDelete").val(custphonenumber)
+            $("#CustomerAddressDelete").val(custaddress)
+            $("#CustomerPostalCodeDelete").val(custpostalcode)
+            $("#CustomerBoughtFromEmployeeGuidDelete").val(custemployeeguid)
+            $("#IsActiveDelete").val(custisactive)
+
+        })
+
+        $(".editButton").click(function () {
+
+            $("#myModal .modal-title").text("Edit Customer Record")
+
+            $("#createButton").hide()
+            $("#editButton").show()
+
+            var custguid = $(this).data('custguid')
+
+            $.ajax({
+
+                type: 'POST',
+                url: '/Customer/GetCustomerByGuid/',
+                data:
+                {
+                    guid: custguid
+                },
+                success: function (data) {
+
+                    if (data == "Null") {
+                        return;
+                    }
+                    
+                    $("#CustomerGuid").val(data._CustomerGuid)
+                    $("#CustomerName").val(data._CustomerName);
+                    $("#CustomerPhoneNumber").val(data._CustomerPhoneNumber);
+                    $("#CustomerAddress").val(data._CustomerAddress);
+                    $("#CustomerPostalCode").val(data._CustomerPostalCode);
+                    $('#CustomerBoughtFromEmployee option[value="' + data._CustomerBoughtFromEmployeeGuid + '"]').prop('selected', true);
+                    $("#IsActive").val(data._IsActive);
+
+                },
+                error: function () {
+                    return;
+                }
+
+            })
+
+        })
+
+    })
+
+</script>

@@ -1,0 +1,97 @@
+﻿@using Microsoft.AspNetCore.Http.Extensions;
+@{
+    string? activeRoute = (string)ViewContext.RouteData.Values["controller"];
+    bool isAdmin = User.Identities.First().Claims.Any(claim => claim.Value == "Information Technology");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @*<link rel="stylesheet" href="~/AspNetCoreMVCApp.styles.css" asp-append-version="true" />*@
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+
+    <div class="dashboard">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="sidebar">
+                <ul class="menu">
+                    <li class="@(activeRoute == "Home" ? "active" : "")">
+                        <a asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-house-door-fill"></i>
+                            <span>&nbsp;Home</span>
+                        </a>
+                    </li>
+                    <li class="@(activeRoute == "Employee" ? "active" : "")">
+                        <a asp-controller="Employee" asp-action="Index">
+                            <i class="bi bi-person-fill-gear"></i>
+                            <span>&nbsp;Employee</span>
+                        </a>
+                    </li>
+                    <li class="@(activeRoute == "Office" ? "active" : "")">
+                        <a asp-controller="Office" asp-action="Index">
+                            <i class="bi bi-buildings-fill"></i>
+                            <span>&nbsp;Office</span>
+                        </a>
+                    </li>
+                    <li class="@(activeRoute == "Customer" ? "active" : "")">
+                        <a asp-controller="Customer" asp-action="Index">
+                            <i class="bi bi-cash"></i>
+                            <span>&nbsp;Customer</span>
+                        </a>
+                    </li>
+                    <li class="@(activeRoute == "Order" ? "active" : "")">
+                        <a asp-controller="Order" asp-action="Index">
+                            <i class="bi bi-currency-dollar"></i>
+                            <span>&nbsp;Order</span>
+                        </a>
+                    </li>
+                    <li class="logout">
+                        <a asp-controller="Login" asp-action="LogOut">
+                            <i class="bi bi-box-arrow-left"></i>
+                            <span>&nbsp;LogOut</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="main_content">
+                <div class="field_wrapper">
+                    <div class="header_title">
+                        <span>@User.Identities.First().Claims.First().Value's</span>
+                        @if(isAdmin == true) {
+                            <h2>Admin Dashboard</h2>
+                        } else {
+                            <h2>Personnel Dashboard</h2>
+                        }
+                    </div>
+                </div>
+                <main>
+                    <partial name="_Notification" />
+                    @RenderBody()
+                </main>
+            </div>
+        }
+        else
+        {
+            <main>
+                @RenderBody()
+            </main>
+        }
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
