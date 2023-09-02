@@ -8,11 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-string connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
+//string connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
 
 builder.Services.AddDbContext<MyCompanyDbContext>(options => options.UseSqlServer(
-    //builder.Configuration.GetConnectionString("DefaultConnection")
-    connectionString
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    //connectionString
     ));
 
 builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
