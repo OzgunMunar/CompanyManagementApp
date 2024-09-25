@@ -1,12 +1,1 @@
-﻿Setting Model Files
-appsetting.json connection string
-DbContext Class 
-Microsoft.EntityFrameworkCore.SqlServer installation
-Microsoft.EntityFrameworkCore.Tools installation
-
-Add-migration CreateDatabase
-update-database
-
-
-DataAccess'e entityframeworkcore and core.tools and core.SqlServer
 
